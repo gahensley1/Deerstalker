@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAP — Leave A Patch</title>
+<meta name="description" content="Leave one un-mowed clover patch and let it flower. The rare climate move that asks you to do less, not more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Amatic+SC:wght@400;700&family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 92'%3E%3Cg fill='none' stroke='%231EA65A' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='37' cy='31' rx='20' ry='13' transform='rotate(-22 37 31)'/%3E%3Cellipse cx='63' cy='31' rx='20' ry='13' transform='rotate(22 63 31)'/%3E%3Cellipse cx='50' cy='57' rx='26' ry='20'/%3E%3Cpath d='M40 40 L40 73 M50 37 L50 76 M60 40 L60 73'/%3E%3C/g%3E%3C/svg%3E">
+<style>
+  :root{
+    --soil:#14231A;
+    --soil-2:#1C3226;
+    --clover:#1EA65A;
+    --clover-deep:#15804A;
+    --pollen:#F2B705;
+    --pollen-soft:#F7CE55;
+    --blossom:#D98FB0;
+    --grass:#EDF1E6;
+    --grass-2:#E3EAD8;
+    --line-soft:#C9D6BE;
+
+    --font-display:"Bricolage Grotesque", system-ui, sans-serif;
+    --font-body:"Hanken Grotesk", system-ui, sans-serif;
+    --font-mono:"Space Mono", ui-monospace, monospace;
+
+    --maxw:1180px;
+    --pad:clamp(1.25rem, 5vw, 4rem);
+    --radius:26px;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    font-family:var(--font-body);
+    color:var(--soil);
+    background:var(--grass);
+    -webkit-font-smoothing:antialiased;
+    line-height:1.6;
+    overflow-x:hidden;
+  }
+  /* faint mown-lawn stripes as the base texture */
+  .stripes{
+    background-image:repeating-linear-gradient(
+      180deg,
+      var(--grass) 0px, var(--grass) 26px,
+      var(--grass-2) 26px, var(--grass-2) 52px
+    );
+  }
+  a{color:inherit;}
+  img,svg{display:block;}
+
+  .wrap{max-width:var(--maxw);margin:0 auto;padding-left:var(--pad);padding-right:var(--pad);}
+
+  /* ---------- type ---------- */
+  h1,h2,h3{font-family:var(--font-display);font-weight:800;letter-spacing:-0.02em;line-height:0.98;margin:0;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    text-transform:uppercase;
+    letter-spacing:0.24em;
+    font-size:0.72rem;
+    font-weight:700;
+    color:var(--clover-deep);
+    display:inline-flex;align-items:center;gap:.6em;
+  }
+  .eyebrow::before{content:"";width:26px;height:2px;background:var(--clover);display:inline-block;}
+  .lead{font-size:clamp(1.05rem,1.6vw,1.25rem);max-width:46ch;color:#2C3B31;}
+
+  /* ---------- buttons ---------- */
+  .btn{
+    font-family:var(--font-body);font-weight:700;font-size:1rem;
+    border:2px solid var(--soil);border-radius:100px;
+    padding:.85rem 1.5rem;cursor:pointer;text-decoration:none;
+    display:inline-flex;align-items:center;gap:.55rem;
+    transition:transform .18s ease, background .18s ease, color .18s ease;
+  }
+  .btn:active{transform:translateY(1px);}
+  .btn-primary{background:var(--pollen);color:var(--soil);}
+  .btn-primary:hover{background:var(--soil);color:var(--pollen);}
+  .btn-ghost{background:transparent;color:var(--soil);}
+  .btn-ghost:hover{background:var(--soil);color:var(--grass);}
+  .btn .arrow{transition:transform .18s ease;}
+  .btn:hover .arrow{transform:translateX(3px);}
+
+  :focus-visible{outline:3px solid var(--clover);outline-offset:3px;border-radius:4px;}
+
+  /* ---------- nav ---------- */
+  nav{position:relative;z-index:40;background:var(--grass);overflow:hidden;min-height:clamp(82px,13vw,98px);}
+  .nav-inner{display:flex;align-items:flex-end;justify-content:space-between;gap:1rem;padding:1.4rem var(--pad) .9rem;position:relative;z-index:2;}
+  .brand{position:absolute;left:var(--pad);bottom:34px;display:flex;align-items:flex-end;z-index:2;text-decoration:none;color:var(--soil);}
+  .brand .mark{width:38px;height:38px;flex:0 0 auto;}
+  .brand .word{font-family:var(--font-display);font-weight:800;font-size:1.5rem;letter-spacing:-0.03em;}
+  .brand .tag{font-family:var(--font-mono);font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--clover-deep);display:block;margin-top:-2px;}
+  .nav-cta{display:none;}
+  @media(min-width:640px){.nav-cta{display:inline-flex;}}
+
+  /* ---------- hero ---------- */
+  .hero{padding-top:clamp(2.5rem,6vw,5rem);padding-bottom:clamp(2.5rem,6vw,5rem);position:relative;}
+  .hero-grid{display:grid;grid-template-columns:1fr;gap:clamp(2rem,5vw,3.5rem);align-items:center;}
+  @media(min-width:920px){.hero-grid{grid-template-columns:1.05fr .95fr;}}
+  h1{font-size:clamp(3.1rem,10vw,6.6rem);}
+  h1 .em{color:var(--clover);}
+  .hero p.lead{margin:1.4rem 0 2rem;}
+  .hero-cta{display:flex;flex-wrap:wrap;gap:.8rem;}
+  .hero-meta{margin-top:2.2rem;display:flex;flex-wrap:wrap;gap:1.4rem;font-family:var(--font-mono);font-size:.72rem;letter-spacing:.06em;color:#3d4c40;}
+  .hero-meta b{color:var(--soil);}
+
+  /* patch illustration */
+  .patch-frame{
+    position:relative;border-radius:var(--radius);overflow:hidden;
+    border:1px solid var(--line-soft);
+    box-shadow:0 30px 60px -30px rgba(20,35,26,.35);
+    background:#E7EDDD;
+  }
+  .patch-svg{width:100%;height:auto;display:block;}
+  .patch-col{position:relative;}
+  .patch-logo{display:flex;align-items:center;gap:.7rem;padding:.2rem clamp(.2rem,1.5vw,.6rem) 0;margin-top:.8rem;}
+  .pl-word{font-family:"Amatic SC", cursive;font-weight:700;font-size:clamp(2rem,5.5vw,3rem);color:var(--soil);line-height:1;letter-spacing:1px;}
+  .pl-line{flex:1 1 auto;height:0;border-top:3px dotted var(--soil);}
+  .pl-bee{width:clamp(38px,7vw,50px);height:auto;flex:0 0 auto;display:block;}
+  .unit{display:block;font-family:var(--font-mono);font-size:.85rem;letter-spacing:.04em;color:var(--soil);opacity:.72;margin-top:.5rem;font-weight:400;}
+
+  /* ---------- marquee ---------- */
+  .ticker{background:var(--soil);color:var(--grass);overflow:hidden;border-top:3px solid var(--clover);border-bottom:3px solid var(--clover);}
+  .ticker-track{display:flex;gap:0;white-space:nowrap;width:max-content;animation:scroll 26s linear infinite;}
+  .ticker-track span{font-family:var(--font-display);font-weight:700;font-size:clamp(1.1rem,2.4vw,1.6rem);padding:.7rem 1.5rem;display:inline-flex;align-items:center;gap:1.5rem;letter-spacing:-0.01em;}
+  .ticker-track .dot{color:var(--pollen);}
+  @keyframes scroll{from{transform:translateX(0);}to{transform:translateX(-50%);}}
+  .ticker:hover .ticker-track{animation-play-state:paused;}
+
+  /* ---------- generic band ---------- */
+  .band{padding-top:clamp(3.5rem,8vw,6.5rem);padding-bottom:clamp(3.5rem,8vw,6.5rem);}
+  .band-head{max-width:60ch;margin-bottom:clamp(2rem,5vw,3rem);}
+  .band-head h2{font-size:clamp(2.1rem,5.5vw,3.6rem);margin-top:.7rem;}
+
+  /* science (dark) */
+  .science{background:var(--soil);color:var(--grass);}
+  .science .eyebrow{color:var(--pollen);}
+  .science .eyebrow::before{background:var(--pollen);}
+  .science .band-head p{color:#C6D3C0;max-width:52ch;font-size:1.1rem;}
+  .stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--soil-2);border:1px solid var(--soil-2);border-radius:var(--radius);overflow:hidden;}
+  @media(min-width:820px){.stats{grid-template-columns:repeat(4,1fr);}}
+  .stat{background:var(--soil);padding:1.8rem 1.4rem;}
+  .stat .n{font-family:var(--font-display);font-weight:800;font-size:clamp(2.2rem,4vw,3rem);color:var(--clover);line-height:1;}
+  .stat .n.alt{color:var(--pollen);}
+  .stat .l{margin-top:.7rem;font-size:.92rem;color:#C6D3C0;}
+  .source{margin-top:1.4rem;font-family:var(--font-mono);font-size:.72rem;color:#8AA391;letter-spacing:.03em;max-width:70ch;}
+
+  /* how (light, real 3-step sequence) */
+  .steps{display:grid;grid-template-columns:1fr;gap:1.1rem;}
+  @media(min-width:760px){.steps{grid-template-columns:repeat(3,1fr);}}
+  .step{background:#fff;border:1px solid var(--line-soft);border-radius:var(--radius);padding:1.8rem;position:relative;overflow:hidden;transition:transform .2s ease, box-shadow .2s ease;}
+  .step:hover{transform:translateY(-4px);box-shadow:0 22px 40px -26px rgba(20,35,26,.4);}
+  .step .idx{font-family:var(--font-mono);font-weight:700;font-size:.8rem;color:var(--clover-deep);letter-spacing:.1em;}
+  .step h3{font-size:1.4rem;margin:.7rem 0 .5rem;}
+  .step p{font-size:.98rem;color:#3a4a3e;margin:0;}
+  .step .leaf{position:absolute;right:-14px;bottom:-14px;width:96px;height:96px;opacity:.10;}
+
+  /* pledge (pollen band) */
+  .pledge{background:var(--pollen);color:var(--soil);}
+  .pledge .eyebrow{color:var(--clover-deep);}
+  .pledge .eyebrow::before{background:var(--soil);}
+  .pledge-grid{display:grid;grid-template-columns:1fr;gap:2.5rem;align-items:center;}
+  @media(min-width:860px){.pledge-grid{grid-template-columns:1.1fr .9fr;}}
+  .pledge h2{font-size:clamp(2.2rem,6vw,4rem);}
+  .pledge p{font-size:1.1rem;max-width:40ch;margin:1rem 0 0;}
+  .form{background:var(--soil);color:var(--grass);border-radius:var(--radius);padding:clamp(1.5rem,4vw,2.2rem);}
+  .form label{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pollen);}
+  .form-row{display:flex;flex-wrap:wrap;gap:.7rem;margin-top:.7rem;}
+  .form input{flex:1 1 180px;min-width:0;font-family:var(--font-body);font-size:1rem;padding:.85rem 1rem;border-radius:100px;border:2px solid var(--soil-2);background:#0F1B14;color:var(--grass);}
+  .form input::placeholder{color:#7f9587;}
+  .form input:focus{border-color:var(--clover);outline:none;}
+  .form .btn-primary{border-color:var(--pollen);white-space:nowrap;}
+  .form .btn-primary:hover{background:var(--clover);border-color:var(--clover);color:var(--soil);}
+  .counter{margin-top:1.2rem;font-family:var(--font-mono);font-size:.82rem;color:#C6D3C0;display:flex;align-items:center;gap:.5rem;}
+  .counter b{color:var(--pollen);font-size:1.05rem;}
+  .form-success{display:none;font-family:var(--font-mono);font-size:.9rem;color:var(--pollen);margin-top:1rem;line-height:1.5;}
+  .form.done .form-row,.form.done .counter{display:none;}
+  .form.done .form-success{display:block;}
+
+  /* palette / brand */
+  .palette{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:var(--radius);overflow:hidden;}
+  @media(min-width:900px){.palette{grid-template-columns:repeat(5,1fr);}}
+  .sw{background:#fff;padding:1.4rem;}
+  .sw .chip{width:100%;height:76px;border-radius:14px;border:1px solid rgba(20,35,26,.12);}
+  .sw .name{font-family:var(--font-display);font-weight:700;font-size:1.05rem;margin-top:.9rem;}
+  .sw .hex{font-family:var(--font-mono);font-size:.72rem;color:#5c6b5f;letter-spacing:.05em;}
+  .sw .mean{font-size:.86rem;color:#3a4a3e;margin-top:.5rem;}
+
+  /* footer */
+  footer{background:var(--soil);color:var(--grass);padding-top:clamp(3rem,6vw,4.5rem);padding-bottom:2.5rem;}
+  .foot-top{display:flex;flex-wrap:wrap;gap:2rem;justify-content:space-between;align-items:flex-start;}
+  .foot-brand{max-width:480px;}
+  .foot-brand .word{font-family:var(--font-display);font-weight:800;font-size:1.7rem;letter-spacing:-0.03em;margin-top:.8rem;}
+  .foot-brand p{color:#A9BCAE;font-size:.95rem;margin:.6rem 0 0;}
+  .foot-links{display:flex;gap:2.5rem;flex-wrap:wrap;}
+  .foot-col h4{font-family:var(--font-mono);font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--pollen);margin:0 0 .8rem;font-weight:700;}
+  .foot-col a{display:block;text-decoration:none;color:#CBD8CD;font-size:.95rem;padding:.2rem 0;}
+  .foot-col a:hover{color:var(--pollen);}
+  .foot-bottom{margin-top:3rem;padding-top:1.5rem;border-top:1px solid var(--soil-2);font-family:var(--font-mono);font-size:.72rem;color:#7f9587;display:flex;flex-wrap:wrap;gap:1rem;justify-content:space-between;}
+
+  /* animations */
+  .sway{transform-origin:bottom center;animation:sway 5s ease-in-out infinite;}
+  .sway.s2{animation-duration:6.2s;animation-delay:-1.5s;}
+  .sway.s3{animation-duration:4.4s;animation-delay:-0.7s;}
+  @keyframes sway{0%,100%{transform:rotate(-2.5deg);}50%{transform:rotate(2.5deg);}}
+  .bee1{animation:bee1 11s ease-in-out infinite;}
+  .bee2{animation:bee2 13s ease-in-out infinite;}
+  @keyframes bee1{
+    0%{transform:translate(0,0) rotate(-4deg);}
+    25%{transform:translate(60px,-30px) rotate(6deg);}
+    50%{transform:translate(140px,10px) rotate(-3deg);}
+    75%{transform:translate(70px,50px) rotate(5deg);}
+    100%{transform:translate(0,0) rotate(-4deg);}
+  }
+  @keyframes bee2{
+    0%{transform:translate(0,0) rotate(3deg);}
+    30%{transform:translate(-70px,40px) rotate(-6deg);}
+    60%{transform:translate(-120px,-20px) rotate(4deg);}
+    100%{transform:translate(0,0) rotate(3deg);}
+  }
+  .reveal{opacity:0;transform:translateY(18px);transition:opacity .7s ease, transform .7s ease;}
+  .reveal.in{opacity:1;transform:none;}
+
+  @media(prefers-reduced-motion:reduce){
+    *{animation:none !important;scroll-behavior:auto;}
+    .reveal{opacity:1;transform:none;}
+    .ticker-track{transform:none;}
+  }
+  .brandmark{height:44px;width:auto;display:block;}
+  .foot-wordmark{width:min(440px,100%);height:auto;display:block;}
+
+  /* full-width header (JS-driven): bee flies across dropping each letter as it passes; the dotted line stays behind it and fills the width. line + bee sit below the words. */
+  .header-stage{position:absolute;inset:0;}
+  .hw{font-family:"Amatic SC", cursive;font-weight:700;font-size:clamp(1.9rem,5.2vw,3.1rem);line-height:.8;color:var(--soil);display:inline-block;transform-origin:50% 100%;}
+  .hw.wg{margin-left:.72em;}
+  .trail-line{position:absolute;left:0;bottom:20px;width:100%;height:0;border-top:3px dotted var(--soil);z-index:1;pointer-events:none;}
+  .fly-bee{position:absolute;left:0;bottom:10px;width:66px;height:60px;color:var(--soil);z-index:3;pointer-events:none;transform:translateX(calc(100vw - 104px));}
+  .fly-bee svg{width:100%;height:100%;display:block;}
+  .plinth{position:absolute;left:0;bottom:0;width:100%;height:14px;background:#14231A;z-index:5;}
+  nav.anim-on .hw{opacity:0;transform:translateY(16px) scale(.5);transition:opacity .3s ease, transform .36s cubic-bezier(.34,1.7,.5,1);}
+  nav.anim-on .hw.pop{opacity:1;transform:translateY(0) scale(1);}
+  nav.no-tween .hw{transition:none !important;}
+  nav.anim-on .trail-line{width:0;}
+  nav.anim-on .fly-bee{transform:translateX(-90px);}
+</style>
+</head>
+<body>
+
+<!-- ============ shared SVG defs (logo mark, clover, bee) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+
+    <!-- clover leaf illustration for the patch -->
+    <symbol id="clover-ill" viewBox="0 0 60 66">
+      <g fill="none" stroke="#15804A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M30 32 C28 23 18 21 18 13 C18 7 26 6 30 12 C34 6 42 7 42 13 C42 21 32 23 30 32Z"/>
+        <path d="M30 32 C22 34 20 44 12 44 C6 44 6 36 12 34 C7 31 9 23 17 26"/>
+        <path d="M30 32 C38 34 40 44 48 44 C54 44 54 36 48 34 C53 31 51 23 43 26"/>
+        <path d="M30 32 L30 60"/>
+      </g>
+    </symbol>
+
+    <!-- tiny bee -->
+    <symbol id="bee" viewBox="0 0 44 30">
+      <ellipse cx="22" cy="18" rx="12" ry="8.5" fill="#F2B705" stroke="#14231A" stroke-width="1.6"/>
+      <path d="M18 11 L18 25 M23 10.5 L23 25.5 M28 12 L28 24" stroke="#14231A" stroke-width="1.6" stroke-linecap="round"/>
+      <ellipse cx="15" cy="8" rx="7" ry="4.5" fill="#EDF1E6" stroke="#14231A" stroke-width="1.4" opacity=".92" transform="rotate(-22 15 8)"/>
+      <ellipse cx="29" cy="8" rx="7" ry="4.5" fill="#EDF1E6" stroke="#14231A" stroke-width="1.4" opacity=".92" transform="rotate(22 29 8)"/>
+    </symbol>
+      <!-- clean simple bee: the brand creature -->
+    <symbol id="bee-clean" viewBox="0 0 100 92">
+      <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+        <ellipse cx="37" cy="31" rx="20" ry="13" transform="rotate(-22 37 31)"/>
+        <ellipse cx="63" cy="31" rx="20" ry="13" transform="rotate(22 63 31)"/>
+        <ellipse cx="50" cy="57" rx="26" ry="20"/>
+        <path d="M40 40 L40 73 M50 37 L50 76 M60 40 L60 73"/>
+        <path d="M46 38 C44 30 44 26 45.5 22"/>
+        <path d="M54 38 C56 30 56 26 54.5 22"/>
+      </g>
+      <circle cx="45.5" cy="20.5" r="2.6" fill="currentColor"/>
+      <circle cx="54.5" cy="20.5" r="2.6" fill="currentColor"/>
+    </symbol>
+      <!-- colored bee for the header animation -->
+    <symbol id="bee-color" viewBox="0 0 100 92">
+      <ellipse cx="37" cy="31" rx="20" ry="13" fill="#EDF1E6" stroke="#14231A" stroke-width="3" transform="rotate(-22 37 31)"/>
+      <ellipse cx="63" cy="31" rx="20" ry="13" fill="#EDF1E6" stroke="#14231A" stroke-width="3" transform="rotate(22 63 31)"/>
+      <ellipse cx="50" cy="57" rx="26" ry="20" fill="#F2B705" stroke="#14231A" stroke-width="3.5"/>
+      <path d="M40 40 L40 73 M50 37 L50 76 M60 40 L60 73" fill="none" stroke="#14231A" stroke-width="3.4" stroke-linecap="round"/>
+      <path d="M46 38 C44 30 44 26 45.5 22" fill="none" stroke="#14231A" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M54 38 C56 30 56 26 54.5 22" fill="none" stroke="#14231A" stroke-width="2.6" stroke-linecap="round"/>
+      <circle cx="45.5" cy="20.5" r="3" fill="#14231A"/>
+      <circle cx="54.5" cy="20.5" r="3" fill="#14231A"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ============ nav ============ -->
+<nav>
+  <div class="plinth" aria-hidden="true"></div>
+  <div class="header-stage">
+    <div class="trail-line" aria-hidden="true"></div>
+    <div class="fly-bee" aria-hidden="true"><svg viewBox="0 0 100 92"><use href="#bee-color"/></svg></div>
+    <a class="brand" href="#top" aria-label="LEAVE A PATCH, home">
+      <span class="hw">L.</span><span class="hw">E</span><span class="hw">A</span><span class="hw">V</span><span class="hw">E</span><span class="hw wg">A.</span><span class="hw wg">P.</span><span class="hw">A</span><span class="hw">T</span><span class="hw">C</span><span class="hw">H</span>
+    </a>
+  </div>
+</nav>
+
+<!-- ============ hero ============ -->
+<header class="hero stripes" id="top">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow">A pollinator campaign · est. 2026</span>
+      <h1 style="margin-top:1.1rem">Mow less.<br><span class="em">Bloom more.</span></h1>
+      <p class="lead">Leave one patch of your lawn un-mowed — ideally clover — and let it flower. It's the rare climate move that asks you to do <b>less</b>, not more. The bees handle the rest.</p>
+      <div class="hero-cta">
+        <a href="#pledge" class="btn btn-primary">Claim your patch <span class="arrow">→</span></a>
+        <a href="#science" class="btn btn-ghost">See the science</a>
+      </div>
+      <div class="hero-meta">
+        <span><b>1 m²</b> (11 sq ft) is enough</span>
+        <span><b>0</b> effort after week one</span>
+        <span><b>100+</b> bee species fed</span>
+      </div>
+    </div>
+
+    <!-- signature: the mown grid, interrupted by a living patch -->
+    <div class="patch-col">
+    <div class="patch-frame" role="img" aria-label="A striped mown lawn interrupted by an organic patch of blooming clover with bees.">
+      <svg class="patch-svg" viewBox="50 86 380 330" xmlns="http://www.w3.org/2000/svg">
+        <!-- mown lawn stripes -->
+        <g>
+          <rect width="480" height="480" fill="#E3EAD8"/>
+          <rect y="0"   width="480" height="34" fill="#DBE4CE"/>
+          <rect y="68"  width="480" height="34" fill="#DBE4CE"/>
+          <rect y="136" width="480" height="34" fill="#DBE4CE"/>
+          <rect y="204" width="480" height="34" fill="#DBE4CE"/>
+          <rect y="272" width="480" height="34" fill="#DBE4CE"/>
+          <rect y="340" width="480" height="34" fill="#DBE4CE"/>
+          <rect y="408" width="480" height="34" fill="#DBE4CE"/>
+        </g>
+
+        <!-- the patch: organic blob where the grid gives way -->
+        <path d="M150 120
+                 C90 130 70 190 92 240
+                 C70 300 120 360 190 358
+                 C250 400 350 380 372 312
+                 C420 280 410 190 356 168
+                 C340 108 230 96 150 120 Z"
+              fill="#1EA65A"/>
+        <path d="M150 120
+                 C90 130 70 190 92 240
+                 C70 300 120 360 190 358
+                 C250 400 350 380 372 312
+                 C420 280 410 190 356 168
+                 C340 108 230 96 150 120 Z"
+              fill="none" stroke="#15804A" stroke-width="3" stroke-dasharray="2 9" stroke-linecap="round" opacity=".55"/>
+
+        <!-- tall un-mown blades along the top edge -->
+        <g stroke="#15804A" stroke-width="2.4" stroke-linecap="round" fill="none" opacity=".8">
+          <path class="sway"    d="M170 132 C166 112 176 104 172 88"/>
+          <path class="sway s2" d="M210 126 C206 106 216 100 214 84"/>
+          <path class="sway s3" d="M250 128 C247 110 256 104 256 90"/>
+          <path class="sway"    d="M300 138 C297 120 306 114 305 100"/>
+        </g>
+
+        <!-- clover blooms inside the patch -->
+        <g>
+          <use href="#clover-ill" x="120" y="205" width="72" height="80" class="sway"/>
+          <use href="#clover-ill" x="210" y="235" width="92" height="102" class="sway s2"/>
+          <use href="#clover-ill" x="300" y="210" width="66" height="74" class="sway s3"/>
+          <use href="#clover-ill" x="178" y="150" width="52" height="58" class="sway s2"/>
+        </g>
+
+        <!-- blossom dots -->
+        <g fill="#D98FB0" stroke="#B96C90" stroke-width="1.4">
+          <circle cx="160" cy="300" r="7"/>
+          <circle cx="330" cy="300" r="6"/>
+          <circle cx="250" cy="330" r="6.5"/>
+        </g>
+
+        <!-- dotted flight paths echo the logo motif -->
+        <g fill="none" stroke="#14231A" stroke-width="3" stroke-dasharray="1 11" stroke-linecap="round" opacity=".42">
+          <path d="M150 300 C118 262 205 250 214 300 C222 346 152 330 176 276 C206 214 300 250 342 214"/>
+          <path d="M300 340 C330 320 356 300 360 280"/>
+        </g>
+
+        <!-- bees on drifting flight -->
+        <g class="bee1"><use href="#bee" x="120" y="150" width="40" height="27"/></g>
+        <g class="bee2"><use href="#bee" x="320" y="250" width="34" height="23"/></g>
+      </svg>
+    </div>
+    <div class="patch-logo">
+      <span class="pl-word">LAP</span>
+      <span class="pl-line" aria-hidden="true"></span>
+      <svg class="pl-bee" viewBox="0 0 100 92" role="img" aria-label="bee"><use href="#bee-color"/></svg>
+    </div>
+    </div>
+  </div>
+</header>
+
+<!-- ============ ticker ============ -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-track">
+    <span>Leave a patch <b class="dot">✦</b> Mow less <b class="dot">✦</b> Feed the bees <b class="dot">✦</b> Rewild your rectangle <b class="dot">✦</b> Do nothing, win <b class="dot">✦</b>&nbsp;</span>
+    <span>Leave a patch <b class="dot">✦</b> Mow less <b class="dot">✦</b> Feed the bees <b class="dot">✦</b> Rewild your rectangle <b class="dot">✦</b> Do nothing, win <b class="dot">✦</b>&nbsp;</span>
+  </div>
+</div>
+
+<!-- ============ science ============ -->
+<section class="band science" id="science">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="eyebrow">The science</span>
+      <h2>Doing less is<br>doing a lot.</h2>
+      <p>Pollinators are running out of flowers to eat. A permanent clover patch is more useful than one skipped mow — it feeds bees for five months straight, and feeds the soil while it's at it.</p>
+    </div>
+    <div class="stats reveal">
+      <div class="stat">
+        <div class="n">100+</div>
+        <div class="l">bee species forage on white-clover lawns — honeybees, bumblebees, mason &amp; sweat bees.</div>
+      </div>
+      <div class="stat">
+        <div class="n alt">Top 3</div>
+        <div class="l">White clover ranks among the top nectar sources for honeybees in North America.</div>
+      </div>
+      <div class="stat">
+        <div class="n">May–Sep</div>
+        <div class="l">Five months of continuous bloom — forage right through the season, not one weekend.</div>
+      </div>
+      <div class="stat">
+        <div class="n alt">0 lbs</div>
+        <div class="l">Clover fixes its own nitrogen (80–150 lbs/acre), so a patch needs no fertilizer.</div>
+      </div>
+    </div>
+    <p class="source">Sources: Univ. of Minnesota Extension (bee lawns); Lerman et al. — reduced mowing raises bee abundance; USDA/OSU Extension on clover as pollinator forage. Note: leaving a lasting patch is better supported than a one-month "no-mow," whose original 2020 study was later retracted.</p>
+  </div>
+</section>
+
+<!-- ============ how it works ============ -->
+<section class="band stripes" id="how">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="eyebrow">How it works · three steps</span>
+      <h2>Touch grass.<br>Then let it be.</h2>
+    </div>
+    <div class="steps">
+      <article class="step reveal">
+        <svg class="leaf" style="color:var(--clover)"><use href="#bee-clean"/></svg>
+        <div class="idx">01</div>
+        <h3>Pick a patch</h3>
+        <p>A corner, a strip, a whole square meter (about 11 sq ft). Draw the line and stop mowing inside it. That's the hard part done.</p>
+      </article>
+      <article class="step reveal">
+        <svg class="leaf" style="color:var(--clover)"><use href="#bee-clean"/></svg>
+        <div class="idx">02</div>
+        <h3>Let it bloom</h3>
+        <p>White clover is the MVP — drought-proof, bee-approved, and it feeds the soil. Overseed a handful if your patch is bare.</p>
+      </article>
+      <article class="step reveal">
+        <svg class="leaf" style="color:var(--clover)"><use href="#bee-clean"/></svg>
+        <div class="idx">03</div>
+        <h3>Tag it</h3>
+        <p>Post your patch with <b>#LeaveAPatch</b>. Screenshots of you doing nothing, for a cause. Peak efficiency.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============ pledge ============ -->
+<section class="band pledge" id="pledge">
+  <div class="wrap pledge-grid">
+    <div class="reveal">
+      <span class="eyebrow">Take the pledge</span>
+      <h2>Claim your<br>square meter. <span class="unit">≈ 11 sq ft</span></h2>
+      <p>One patch per person. We'll send a starter guide, a clover seed source, and exactly zero spam.</p>
+    </div>
+    <div class="form reveal" id="pledgeForm">
+      <label for="email">Your email</label>
+      <div class="form-row">
+        <input id="email" type="email" placeholder="you@email.com" autocomplete="email">
+        <button type="button" class="btn btn-primary" id="pledgeBtn">I'm leaving a patch</button>
+      </div>
+      <div class="counter"><span>◔</span> <b id="count">4,217</b>&nbsp;patches claimed &amp; counting</div>
+      <p class="form-success" id="success">Patch claimed. Check your inbox for the starter guide — the bees say thanks. ✦</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ palette / brand ============ -->
+<section class="band" id="brand">
+  <div class="wrap">
+    <div class="band-head reveal">
+      <span class="eyebrow">The brand · colors with meaning</span>
+      <h2>Every color earns<br>its place.</h2>
+    </div>
+    <div class="palette reveal">
+      <div class="sw">
+        <div class="chip" style="background:#14231A"></div>
+        <div class="name">Soil</div>
+        <div class="hex">#14231A</div>
+        <div class="mean">Roots and ground — the seriousness under the science.</div>
+      </div>
+      <div class="sw">
+        <div class="chip" style="background:#1EA65A"></div>
+        <div class="name">Clover</div>
+        <div class="hex">#1EA65A</div>
+        <div class="mean">Living chlorophyll. The patch itself, and permission to grow.</div>
+      </div>
+      <div class="sw">
+        <div class="chip" style="background:#F2B705"></div>
+        <div class="name">Pollen</div>
+        <div class="hex">#F2B705</div>
+        <div class="mean">Bees, nectar, the payoff. It's the call to action for a reason.</div>
+      </div>
+      <div class="sw">
+        <div class="chip" style="background:#D98FB0"></div>
+        <div class="name">Blossom</div>
+        <div class="hex">#D98FB0</div>
+        <div class="mean">The clover flowerhead. Used rarely, so it always lands.</div>
+      </div>
+      <div class="sw">
+        <div class="chip" style="background:#EDF1E6;border-color:#C9D6BE"></div>
+        <div class="name">Cut-grass</div>
+        <div class="hex">#EDF1E6</div>
+        <div class="mean">Morning light and open air — a green-tinted white, never cream.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ footer ============ -->
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <a class="brand" href="#top" style="color:var(--grass)" aria-label="LAP — Leave A Patch, home">
+          <svg class="foot-wordmark" viewBox="60 120 960 420" role="img" aria-label="LAP">
+            <text x="92" y="452" font-family="Amatic SC" font-weight="700" font-size="360" letter-spacing="10" fill="currentColor">LAP</text>
+            <path d="M100 486 L705 486" fill="none" stroke="currentColor" stroke-width="6" stroke-dasharray="15 22" stroke-linecap="round"/>
+            <use href="#bee-clean" x="660" y="270" width="280" height="258"/>
+          </svg>
+        </a>
+        <p>Leave A Patch — for the ones who mow less and let the bees move in.</p>
+      </div>
+      <div class="foot-links">
+        <div class="foot-col">
+          <h4>Campaign</h4>
+          <a href="#science">The science</a>
+          <a href="#how">How it works</a>
+          <a href="#pledge">Take the pledge</a>
+        </div>
+        <div class="foot-col">
+          <h4>Grow</h4>
+          <a href="#">Clover seed guide</a>
+          <a href="#">Patch starter kit</a>
+          <a href="#">Find a bee lawn near you</a>
+        </div>
+        <div class="foot-col">
+          <h4>Follow</h4>
+          <a href="#">#LeaveAPatch</a>
+          <a href="#">Instagram</a>
+          <a href="#">TikTok</a>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© 2026 Leave A Patch · a grassroots pollinator campaign</span>
+      <span>Mow less. Bloom more.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // pledge interaction (front-end only)
+  (function(){
+    var btn = document.getElementById('pledgeBtn');
+    var form = document.getElementById('pledgeForm');
+    var email = document.getElementById('email');
+    var count = document.getElementById('count');
+    btn.addEventListener('click', function(){
+      if(!email.value || email.value.indexOf('@') === -1){
+        email.focus();
+        email.style.borderColor = '#D98FB0';
+        return;
+      }
+      var n = parseInt(count.textContent.replace(/,/g,''),10) + 1;
+      count.textContent = n.toLocaleString();
+      form.classList.add('done');
+    });
+  })();
+
+  // scroll reveal
+  (function(){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} });
+    }, {threshold:0.14});
+    document.querySelectorAll('.reveal').forEach(function(el){ io.observe(el); });
+  })();
+</script>
+<script>
+(function(){
+  var nav = document.querySelector('nav');
+  if(!nav) return;
+  var stage = nav.querySelector('.header-stage');
+  var brand = nav.querySelector('.brand');
+  var bee = nav.querySelector('.fly-bee');
+  var trail = nav.querySelector('.trail-line');
+  var letters = Array.prototype.slice.call(nav.querySelectorAll('.hw'));
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  var centers = [];
+  function measure(){
+    var bl = brand.offsetLeft;
+    centers = letters.map(function(el){ return bl + el.offsetLeft + el.offsetWidth/2; });
+  }
+  nav.classList.add('anim-on');
+  measure();
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(measure); }
+  window.addEventListener('resize', measure);
+
+  var DUR = 6500, POP_DELAY = 1000, start = performance.now(), lastP = 1;
+  var passedAt = letters.map(function(){ return null; });
+  function hideLetters(){
+    nav.classList.add('no-tween');
+    letters.forEach(function(el){ el.classList.remove('pop'); });
+    void nav.offsetWidth;
+    nav.classList.remove('no-tween');
+    passedAt = letters.map(function(){ return null; });
+  }
+  function frame(now){
+    var W = nav.clientWidth;
+    var p = ((now - start) % DUR) / DUR;
+    if(p < lastP){ hideLetters(); }   // guaranteed once-per-cycle reset -> no drift
+    lastP = p;
+
+    var tp = Math.min(p / 0.72, 1);
+    var beeX = -90 + tp * (W + 140);
+    bee.style.transform = 'translateX(' + beeX.toFixed(1) + 'px)';
+
+    // dotted line trails the bee's back and stays put -> fills the width
+    trail.style.width = Math.max(0, Math.min(beeX, W)).toFixed(1) + 'px';
+
+    var nose = beeX + 33;
+    for(var i=0;i<letters.length;i++){
+      if(passedAt[i]===null && nose >= centers[i]) passedAt[i] = now;
+      if(passedAt[i]!==null && (now - passedAt[i]) >= POP_DELAY) letters[i].classList.add('pop');
+    }
+
+    var op;
+    if(p < 0.04) op = p / 0.04;               // fade in (covers the reset)
+    else if(p < 0.90) op = 1;                 // hold the finished logo
+    else op = Math.max(0, 1 - (p - 0.90) / 0.08); // fade out before the wrap
+    stage.style.opacity = op.toFixed(3);
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+})();
+</script>
+</body>
+</html>
